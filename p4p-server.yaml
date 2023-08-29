@@ -33,6 +33,7 @@ metadata:
   namespace: server-test
   annotations:
     metallb.universe.tf/allow-shared-ip: "mailbox-test-key"
+    metallb.universe.tf/address-pool: sdf-services
 spec:
   type: LoadBalancer
   loadBalancerIP: 172.24.5.184
@@ -52,6 +53,7 @@ metadata:
   namespace: server-test
   annotations:
     metallb.universe.tf/allow-shared-ip: "mailbox-test-key"
+    metallb.universe.tf/address-pool: sdf-services
 spec:
   type: LoadBalancer
   loadBalancerIP: 172.24.5.184
