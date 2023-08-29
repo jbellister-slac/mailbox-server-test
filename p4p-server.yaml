@@ -1,0 +1,65 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailbox-server
+  namespace: server-test
+  labels:
+    app: mailbox-server
+    app.kubernetes.io/name: mailbox-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailbox-server
+  template:
+    metadata:
+      labels:
+        app: mailbox-server
+        app.kubernetes.io/name: mailbox-server
+    spec:
+      containers:
+        - name: mailbox-server
+          image: tidacs/softioc-python:v1.3
+          ports:
+          - containerPort: 5075
+          - containerPort: 5076
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailbox-service-tcp
+  namespace: server-test
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "mailbox-test-key"
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 172.24.5.184
+  ports:
+  - port: 5075
+    targetPort: 5075
+    protocol: TCP
+    name: mailbox-tcp
+  selector:
+    app: mailbox-server
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailbox-service-udp
+  namespace: server-test
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "mailbox-test-key"
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 172.24.5.184
+  ports:
+  - port: 5076
+    targetPort: 5076
+    protocol: UDP
+    name: mailbox-udp
+  selector:
+    app: mailbox-server
+
