@@ -15,7 +15,12 @@ spec:
   template:
     metadata:
       annotations:
-        k8s.v1.cni.cncf.io/networks: multus/sdf-ad-ingest
+        k8s.v1.cni.cncf.io/networks: '[
+                { "name": "sdf-ad-ingest",
+                  "namespace": "multus",
+                  "ips": [ "172.24.8.201/24" ],
+                  "gateway": [ "172.24.8.1" ] }
+        ]'
       labels:
         app: mailbox-server
         app.kubernetes.io/name: mailbox-server
@@ -34,7 +39,7 @@ spec:
         key: node-role.kubernetes.io/ext-load-balancer
       containers:
         - name: mailbox-server
-          image: tidacs/softioc-python:v1.3
+          image: tidacs/softioc-python:v1.4
           ports:
           - containerPort: 5075
           - containerPort: 5076
