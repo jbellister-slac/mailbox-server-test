@@ -17,8 +17,8 @@ spec:
       annotations:
         k8s.v1.cni.cncf.io/networks: '[
                 { "name": "sdf-ad-ingest",
-                  "namespace": "multus",
-                  "ips": [ "172.24.8.201/24" ],
+                  "namespace": "multus-system",
+                  "ips": [ "172.24.8.217/24" ],
                   "gateway": [ "172.24.8.1" ] }
         ]'
       labels:
@@ -39,7 +39,7 @@ spec:
         key: node-role.kubernetes.io/ext-load-balancer
       containers:
         - name: mailbox-server
-          image: tidacs/softioc-python:v1.4
+          image: tidacs/softioc-python:v1.5
           ports:
           - containerPort: 5075
           - containerPort: 5076
@@ -55,7 +55,6 @@ metadata:
     metallb.universe.tf/address-pool: sdf-services
 spec:
   type: LoadBalancer
-  loadBalancerIP: 172.24.5.184
   ports:
   - port: 5075
     targetPort: 5075
@@ -75,7 +74,6 @@ metadata:
     metallb.universe.tf/address-pool: sdf-services
 spec:
   type: LoadBalancer
-  loadBalancerIP: 172.24.5.184
   ports:
   - port: 5076
     targetPort: 5076
