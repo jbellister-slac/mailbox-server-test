@@ -1,0 +1,86 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arbitrary-python
+  namespace: pva-gateway
+  labels:
+    app: arbitrary-python
+    app.kubernetes.io/name: arbitrary-python
+    app.kubernetes.io/part-of: nalms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: arbitrary-python
+  template:
+    metadata:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[
+                { "name": "sdf-ad-ingest",
+                  "namespace": "multus-system",
+                  "ips": [ "172.24.8.204/24" ],
+                  "gateway": [ "172.24.8.1" ] }
+        ]'
+      labels:
+        app: arbitrary-python
+        app.kubernetes.io/name: arbitrary-python
+        app.kubernetes.io/part-of: nalms
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: edu.stanford.slac.sdf.k8s.networking.multus
+                operator: In
+                values:
+                - enable
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/ext-load-balancer
+      containers:
+        - name: arbitrary-python
+          image: tidacs/pva-gateway-example:v0.1
+          ports:
+          - containerPort: 5075
+          - containerPort: 5076
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailbox-service-tcp
+  namespace: pva-gateway
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "mailbox-test-key"
+    metallb.universe.tf/address-pool: sdf-services
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5075
+    targetPort: 5075
+    protocol: TCP
+    name: mailbox-tcp
+  selector:
+    app: mailbox-server
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailbox-service-udp
+  namespace: pva-gateway
+  annotations:
+    metallb.universe.tf/allow-shared-ip: "mailbox-test-key"
+    metallb.universe.tf/address-pool: sdf-services
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5076
+    targetPort: 5076
+    protocol: UDP
+    name: mailbox-udp
+  selector:
+    app: mailbox-server
